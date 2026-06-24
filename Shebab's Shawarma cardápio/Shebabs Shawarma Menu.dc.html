@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="./image-slot.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: #0e0604; font-family: 'Inter', sans-serif; color: #2a1a0e; overflow-x: hidden; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes floatCrescent {
+      0%, 100% { transform: translateY(0px) rotate(-10deg); }
+      50%       { transform: translateY(-10px) rotate(-10deg); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    @keyframes glowPulse {
+      0%, 100% { text-shadow: 0 0 40px rgba(200,134,10,0.4), 0 0 80px rgba(200,134,10,0.1); }
+      50%       { text-shadow: 0 0 60px rgba(200,134,10,0.7), 0 0 120px rgba(200,134,10,0.25); }
+    }
+    @keyframes borderGlow {
+      0%, 100% { box-shadow: 0 0 0 1px rgba(200,134,10,0.3), inset 0 0 20px rgba(200,134,10,0.03); }
+      50%       { box-shadow: 0 0 0 1px rgba(200,134,10,0.6), inset 0 0 30px rgba(200,134,10,0.07); }
+    }
+
+    .search-input:focus { outline: none; border-color: #C8860A; box-shadow: 0 0 0 3px rgba(200,134,10,0.2); }
+
+    .category-btn { transition: all 0.2s ease; cursor: pointer; white-space: nowrap; }
+    .category-btn:hover { background: #8B1A1A !important; color: #FFF8F0 !important; transform: translateY(-1px); }
+    .category-btn.active { background: #8B1A1A !important; color: #FFF8F0 !important; box-shadow: 0 4px 16px rgba(139,26,26,0.4); }
+
+    .menu-card {
+      background: #FFFCF7;
+      border: 1px solid rgba(200,134,10,0.2);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+      position: relative;
+    }
+    .menu-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 48px rgba(139,26,26,0.18), 0 0 0 1px rgba(200,134,10,0.4);
+    }
+    .card-body { padding: 16px 18px 18px; }
+
+    .price-badge {
+      background: linear-gradient(135deg, #C8860A, #f0a820);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(14,6,4,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(200,134,10,0.2);
+    }
+
+    .section-wrap { background: #FFF8F0; }
+
+    .section-title-line {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .section-title-line::before,
+    .section-title-line::after {
+      content: '';
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200,134,10,0.5), transparent);
+    }
+
+    .combo-banner { animation: fadeIn 0.8s ease 0.3s both; }
+
+    image-slot {
+      display: block;
+      width: 100%;
+      height: 170px;
+    }
+
+    @media (max-width: 640px) {
+      .cards-grid { grid-template-columns: 1fr !important; }
+      image-slot { height: 150px; }
+    }
+  </style>
+</helmet>
+
+<!-- HERO with shader canvas -->
+<div id="hero-wrap" style="position:relative; overflow:hidden; min-height: 340px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+  <canvas id="shader-canvas" style="position:absolute; inset:0; width:100%; height:100%; display:block;"></canvas>
+  <!-- Dark overlay -->
+  <div style="position:absolute; inset:0; background: linear-gradient(180deg, rgba(30,6,6,0.55) 0%, rgba(14,3,3,0.75) 100%);"></div>
+
+  <!-- Content -->
+  <div style="position:relative; z-index:2; text-align:center; padding: 56px 24px 52px;">
+    <div style="display:inline-flex; align-items:center; gap:10px; background:rgba(200,134,10,0.12); border:1px solid rgba(200,134,10,0.4); border-radius:999px; padding:6px 20px; margin-bottom:22px; animation: borderGlow 3s ease infinite;">
+      <span style="color:#C8860A; font-size:18px;">☾</span>
+      <span style="color:#e8c87a; font-family:'Inter',sans-serif; font-size:11px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase;">Cardápio Digital</span>
+      <span style="color:#C8860A; font-size:18px; transform:scaleX(-1); display:inline-block;">☾</span>
+    </div>
+
+    <h1 style="font-family:'Playfair Display',serif; font-size:clamp(56px,11vw,96px); font-weight:900; color:#FFF8F0; line-height:1; letter-spacing:-0.02em; animation: glowPulse 4s ease infinite;">Shebab's</h1>
+    <p style="font-family:'Playfair Display',serif; font-size:clamp(13px,2.5vw,18px); color:#C8860A; letter-spacing:0.24em; text-transform:uppercase; margin-top:10px; font-style:italic; opacity:0.9;">Shawarma • Churrasco Grego • Especiais</p>
+
+    <div style="margin: 26px auto 0; display:flex; align-items:center; justify-content:center; gap:14px; max-width:300px;">
+      <div style="flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(200,134,10,0.7));"></div>
+      <span style="color:#C8860A; font-size:18px;">✦</span>
+      <div style="flex:1; height:1px; background:linear-gradient(90deg,rgba(200,134,10,0.7),transparent);"></div>
+    </div>
+  </div>
+
+  <!-- Floating crescents -->
+  <div style="position:absolute; top:18px; left:5%; font-size:72px; color:rgba(200,134,10,0.12); animation:floatCrescent 5s ease-in-out infinite; line-height:1; z-index:2; pointer-events:none;">☾</div>
+  <div style="position:absolute; bottom:20px; right:6%; font-size:44px; color:rgba(200,134,10,0.1); animation:floatCrescent 6s ease-in-out 1.5s infinite; line-height:1; z-index:2; pointer-events:none;">☾</div>
+</div>
+
+<!-- COMBO BANNER -->
+<div class="combo-banner" style="background:linear-gradient(135deg,#9a6208,#C8860A,#9a6208); background-size:200%; padding:14px 24px; text-align:center;">
+  <p style="color:#fff8f0; font-family:'Inter',sans-serif; font-size:14px; font-weight:600; letter-spacing:0.04em;">
+    🔥 Peça o <strong style="font-size:16px;">COMBO</strong> por apenas <strong style="font-size:16px;">+ R$ 14,99</strong> — adicione bebida + sobremesa!
+  </p>
+</div>
+
+<!-- NAV -->
+<div class="nav-bar">
+  <div style="padding:12px 20px 0; max-width:560px; margin:0 auto;">
+    <div style="position:relative;">
+      <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:15px; color:#9a7a5a;">🔍</span>
+      <input id="search-input" class="search-input" type="text" placeholder="Buscar no cardápio..."
+        style="width:100%; padding:10px 14px 10px 40px; border:1.5px solid rgba(200,134,10,0.3); border-radius:8px; font-family:'Inter',sans-serif; font-size:14px; background:#1a0d0a; color:#FFF8F0; transition:border-color 0.2s, box-shadow 0.2s;" />
+    </div>
+  </div>
+  <div style="overflow-x:auto; padding:10px 16px 12px; display:flex; gap:8px; scrollbar-width:none;">
+    <button class="category-btn active" data-cat="all"         style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.04em;padding:7px 15px;border-radius:999px;border:1.5px solid #8B1A1A;background:#8B1A1A;color:#FFF8F0;">Todos</button>
+    <button class="category-btn" data-cat="shawarma"           style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.04em;padding:7px 15px;border-radius:999px;border:1.5px solid rgba(200,134,10,0.35);background:transparent;color:#C8860A;">Shawarma</button>
+    <button class="category-btn" data-cat="churrasco"          style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.04em;padding:7px 15px;border-radius:999px;border:1.5px solid rgba(200,134,10,0.35);background:transparent;color:#C8860A;">Churrasco Grego</button>
+    <button class="category-btn" data-cat="baguete"            style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.04em;padding:7px 15px;border-radius:999px;border:1.5px solid rgba(200,134,10,0.35);background:transparent;color:#C8860A;">Baguete Turco</button>
+    <button class="category-btn" data-cat="beirute"            style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.04em;padding:7px 15px;border-radius:999px;border:1.5px solid rgba(200,134,10,0.35);background:transparent;color:#C8860A;">Beirute</button>
+    <button class="category-btn" data-cat="especiais"          style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.04em;padding:7px 15px;border-radius:999px;border:1.5px solid rgba(200,134,10,0.35);background:transparent;color:#C8860A;">Especiais</button>
+    <button class="category-btn" data-cat="vegetariano"        style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.04em;padding:7px 15px;border-radius:999px;border:1.5px solid rgba(200,134,10,0.35);background:transparent;color:#C8860A;">Vegetariano</button>
+    <button class="category-btn" data-cat="doces"              style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.04em;padding:7px 15px;border-radius:999px;border:1.5px solid rgba(200,134,10,0.35);background:transparent;color:#C8860A;">Doces</button>
+    <button class="category-btn" data-cat="porcoes"            style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.04em;padding:7px 15px;border-radius:999px;border:1.5px solid rgba(200,134,10,0.35);background:transparent;color:#C8860A;">Porções</button>
+    <button class="category-btn" data-cat="adicionais"         style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.04em;padding:7px 15px;border-radius:999px;border:1.5px solid rgba(200,134,10,0.35);background:transparent;color:#C8860A;">Adicionais</button>
+  </div>
+</div>
+
+<!-- MENU -->
+<div class="section-wrap">
+<div id="menu-content" style="max-width:940px; margin:0 auto; padding:48px 20px 72px;">
+
+  <div id="empty-state" style="display:none; text-align:center; padding:80px 20px; color:#9a7a5a;">
+    <div style="font-size:48px; margin-bottom:16px;">🔍</div>
+    <p style="font-family:'Playfair Display',serif; font-size:22px; font-weight:600; color:#8B1A1A;">Nenhum item encontrado</p>
+    <p style="margin-top:8px; font-size:14px;">Tente buscar por outro nome.</p>
+  </div>
+
+  <!-- ── SHAWARMA ORIGINAL ── -->
+  <div data-section="shawarma" id="sec-shawarma">
+    <div class="section-title-line" style="margin-bottom:28px;">
+      <h2 style="font-family:'Playfair Display',serif; font-size:clamp(20px,4vw,28px); font-weight:700; color:#8B1A1A; white-space:nowrap;">☾ Shawarma Original</h2>
+    </div>
+    <div class="cards-grid" style="display:grid; grid-template-columns:repeat(2,1fr); gap:20px;">
+
+      <div class="menu-card" data-cat="shawarma" data-name="shawarma original de carne">
+        <image-slot id="img-shw-carne" shape="rect" placeholder="📷 Foto do prato" style="border-radius:0;" src="../Imagens Comidas/shawarma_carne_trad.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#8B1A1A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Shawarma</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Shawarma Original de Carne</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão sírio, filetes de carne temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 28,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="shawarma" data-name="shawarma original de frango">
+        <image-slot id="img-shw-frango" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#8B1A1A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Shawarma</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Shawarma Original de Frango</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão sírio, filetes de frango temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 27,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="shawarma" data-name="shawarma original misto">
+        <image-slot id="img-shw-misto" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#8B1A1A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Shawarma</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Shawarma Original Misto</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão sírio, filetes de carne e frango temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita, queijo muçarela.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 28,99</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── CHURRASCO GREGO ── -->
+  <div data-section="churrasco" id="sec-churrasco" style="margin-top:56px;">
+    <div class="section-title-line" style="margin-bottom:28px;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,28px);font-weight:700;color:#8B1A1A;white-space:nowrap;">☾ Churrasco Grego</h2>
+    </div>
+    <div class="cards-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">
+
+      <div class="menu-card" data-cat="churrasco" data-name="churrasco grego carne">
+        <image-slot id="img-cg-carne" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#5c2a00;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Churrasco Grego</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Churrasco Grego Carne</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão francês, filetes de carne temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 21,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="churrasco" data-name="churrasco grego frango">
+        <image-slot id="img-cg-frango" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#5c2a00;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Churrasco Grego</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Churrasco Grego Frango</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão francês, filetes de frango temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 21,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="churrasco" data-name="churrasco grego misto">
+        <image-slot id="img-cg-misto" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#5c2a00;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Churrasco Grego</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Churrasco Grego Misto</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão francês, filetes de carne e frango temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 20,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="churrasco" data-name="churrasco grego carne paulista">
+        <image-slot id="img-cg-carnep" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/churrasco_grego_paulista.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#5c2a00;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Churrasco Grego</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Churrasco Grego Carne Paulista</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão francês, filetes de carne temperados, pasta de alho, vinagrete (salsinha, cebolinha, tomate, cebola e limão).</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 19,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="churrasco" data-name="churrasco grego frango paulista">
+        <image-slot id="img-cg-frangop" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/churrasco_grego_paulista.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#5c2a00;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Churrasco Grego</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Churrasco Grego Frango Paulista</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão francês, filetes de frango temperados, pasta de alho, vinagrete (salsinha, cebolinha, tomate, cebola e limão).</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 17,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="churrasco" data-name="churrasco grego misto paulista">
+        <image-slot id="img-cg-mistop" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/churrasco_grego_paulista.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#5c2a00;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Churrasco Grego</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Churrasco Grego Misto Paulista</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão francês, filetes de carne e frango temperados, pasta de alho, vinagrete.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 19,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="churrasco" data-name="churrasco grego carne especial">
+        <image-slot id="img-cg-carnee" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+            <span style="display:inline-block;background:#5c2a00;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;">Churrasco Grego</span>
+            <span style="display:inline-block;background:#C8860A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;">Especial</span>
+          </div>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Churrasco Grego Carne Especial</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão francês, filetes de carne temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita e queijo muçarela.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 26,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="churrasco" data-name="churrasco grego frango especial">
+        <image-slot id="img-cg-frangoe" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+            <span style="display:inline-block;background:#5c2a00;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;">Churrasco Grego</span>
+            <span style="display:inline-block;background:#C8860A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;">Especial</span>
+          </div>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Churrasco Grego Frango Especial</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão francês, filetes de frango temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita e queijo muçarela.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 25,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="churrasco" data-name="churrasco grego misto especial">
+        <image-slot id="img-cg-mistoe" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+            <span style="display:inline-block;background:#5c2a00;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;">Churrasco Grego</span>
+            <span style="display:inline-block;background:#C8860A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;">Especial</span>
+          </div>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Churrasco Grego Misto Especial</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão francês, filetes de carne e frango temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita e queijo muçarela.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 26,99</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── BAGUETE TURCO ── -->
+  <div data-section="baguete" id="sec-baguete" style="margin-top:56px;">
+    <div class="section-title-line" style="margin-bottom:28px;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,28px);font-weight:700;color:#8B1A1A;white-space:nowrap;">☾ Baguete Turco</h2>
+    </div>
+    <div class="cards-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">
+
+      <div class="menu-card" data-cat="baguete" data-name="baguete turco carne">
+        <image-slot id="img-bt-carne" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/baguete_turco.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#1a3a5c;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Baguete Turco</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Baguete Turco Carne</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão baguete, filetes de carne temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita, queijo muçarela.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 35,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="baguete" data-name="baguete turco frango">
+        <image-slot id="img-bt-frango" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/baguete_turco.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#1a3a5c;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Baguete Turco</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Baguete Turco Frango</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão baguete, filetes de frango temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita, queijo muçarela.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 35,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="baguete" data-name="baguete turco misto">
+        <image-slot id="img-bt-misto" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/baguete_turco.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#1a3a5c;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Baguete Turco</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Baguete Turco Misto</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão baguete, filetes de carne e frango temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita, queijo muçarela.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 37,99</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── BEIRUTE ── -->
+  <div data-section="beirute" id="sec-beirute" style="margin-top:56px;">
+    <div class="section-title-line" style="margin-bottom:28px;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,28px);font-weight:700;color:#8B1A1A;white-space:nowrap;">☾ Beirute</h2>
+    </div>
+    <div class="cards-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">
+
+      <div class="menu-card" data-cat="beirute" data-name="beirute de carne">
+        <image-slot id="img-brt-carne" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/beirute.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#2d1b4e;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Beirute</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Beirute de Carne</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">2 pães sírios, 300g de filetes de carne temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita, queijo muçarela, picles.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 51,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="beirute" data-name="beirute de frango">
+        <image-slot id="img-brt-frango" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/beirute.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#2d1b4e;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Beirute</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Beirute de Frango</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">2 pães sírios, 300g de filetes de frango temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita, queijo muçarela, picles.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 46,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="beirute" data-name="beirute misto">
+        <image-slot id="img-brt-misto" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/beirute.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#2d1b4e;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Beirute</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Beirute Misto</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">2 pães sírios, 300g de filetes de carne e frango temperados com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita, queijo muçarela, picles.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 51,99</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── ESPECIAIS ── -->
+  <div data-section="especiais" id="sec-especiais" style="margin-top:56px;">
+    <div class="section-title-line" style="margin-bottom:28px;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,28px);font-weight:700;color:#8B1A1A;white-space:nowrap;">☾ Especiais</h2>
+    </div>
+    <div class="cards-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">
+
+      <div class="menu-card" data-cat="especiais" data-name="shawarma damasco">
+        <image-slot id="img-esp-damasco" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/shawarma_damasco.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#C8860A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">✦ Especial</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Shawarma Damasco</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão sírio, filetes de frango temperados com especiarias típicas, requeijão, rúcula, tomate seco, muçarela de búfala.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 37,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="especiais" data-name="shawarma crispy de frango">
+        <image-slot id="img-esp-crispy" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#C8860A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">✦ Especial</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Shawarma Crispy de Frango</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão sírio, frango empanado e temperado com especiarias típicas, pasta de alho, cebola com salsinha, acelga, tomate, batata frita.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 39,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="especiais" data-name="churrasco grego misto paulista especial">
+        <image-slot id="img-esp-paulista" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/churrasco_grego_paulista.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#C8860A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">✦ Especial</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Churrasco Grego Misto Paulista</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Versão especial da casa com carne e frango, ao estilo paulista.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 37,99</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── VEGETARIANO ── -->
+  <div data-section="vegetariano" id="sec-vegetariano" style="margin-top:56px;">
+    <div class="section-title-line" style="margin-bottom:28px;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,28px);font-weight:700;color:#8B1A1A;white-space:nowrap;">☾ Vegetariano 🌿</h2>
+    </div>
+    <div class="cards-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">
+
+      <div class="menu-card" data-cat="vegetariano" data-name="shawarma falafel">
+        <image-slot id="img-veg-falafel" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#2d5a27;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">🌿 Vegetariano</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Shawarma Falafel</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão sírio, Falafel (feito com grão de bico), pasta de alho, cebola com salsinha, acelga, tomate, batata frita e picles.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 36,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="vegetariano" data-name="shawarma falafel especial">
+        <image-slot id="img-veg-falafele" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+            <span style="display:inline-block;background:#2d5a27;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;">🌿 Vegetariano</span>
+            <span style="display:inline-block;background:#C8860A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;">Especial</span>
+          </div>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Shawarma Falafel Especial</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Pão sírio, Falafel (feito com grão de bico), pasta de alho, cebola com salsinha, acelga, tomate, batata frita, picles, queijo muçarela.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 41,99</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── DOCES ── -->
+  <div data-section="doces" id="sec-doces" style="margin-top:56px;">
+    <div class="section-title-line" style="margin-bottom:28px;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,28px);font-weight:700;color:#8B1A1A;white-space:nowrap;">☾ Doces</h2>
+    </div>
+    <div class="cards-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">
+
+      <div class="menu-card" data-cat="doces" data-name="shawarma sensação">
+        <image-slot id="img-doc-sensacao" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#8B1A1A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">🍫 Doce</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Shawarma Sensação</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Uma tentação irresistível para fechar com chave de ouro.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 29,99</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="doces" data-name="shawarma tentação">
+        <image-slot id="img-doc-tentacao" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/shawarma_tentação.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#8B1A1A;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">🍫 Doce</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Shawarma Tentação</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Sabor único e especial, um doce para os verdadeiros apreciadores.</p>
+          <p class="price-badge" style="font-size:21px;font-weight:700;font-family:'Playfair Display',serif;">R$ 29,99</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── PORÇÕES ── -->
+  <div data-section="porcoes" id="sec-porcoes" style="margin-top:56px;">
+    <div class="section-title-line" style="margin-bottom:28px;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,28px);font-weight:700;color:#8B1A1A;white-space:nowrap;">☾ Porções</h2>
+    </div>
+    <div class="cards-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;">
+
+      <div class="menu-card" data-cat="porcoes" data-name="kibe frito 4 unidades">
+        <image-slot id="img-por-kibe4" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/porcao_kibe.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#4a3000;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Porção</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Kibe Frito (4 unidades)</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Kibe frito artesanal, sequinho e saboroso.</p>
+          <p style="font-size:17px;font-weight:700;font-family:'Playfair Display',serif;color:#9a7a5a;">Consulte</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="porcoes" data-name="kibe frito 6 unidades">
+        <image-slot id="img-por-kibe6" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/porcao_kibe.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#4a3000;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Porção</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Kibe Frito (6 unidades)</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Kibe frito artesanal, sequinho e saboroso.</p>
+          <p style="font-size:17px;font-weight:700;font-family:'Playfair Display',serif;color:#9a7a5a;">Consulte</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="porcoes" data-name="falafel 8 unidades">
+        <image-slot id="img-por-falafel" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#4a3000;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Porção</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Falafel (8 unidades) 🌿</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Falafel feito com grão de bico, crocante e temperado.</p>
+          <p style="font-size:17px;font-weight:700;font-family:'Playfair Display',serif;color:#9a7a5a;">Consulte</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="porcoes" data-name="batata frita 150g">
+        <image-slot id="img-por-batata150" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#4a3000;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Porção</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Batata Frita 150g</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Batata frita sequinha e crocante.</p>
+          <p style="font-size:17px;font-weight:700;font-family:'Playfair Display',serif;color:#9a7a5a;">Consulte</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="porcoes" data-name="batata frita 300g">
+        <image-slot id="img-por-batata300" shape="rect" placeholder="📷 Foto do prato"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#4a3000;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Porção</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Batata Frita 300g</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Porção generosa de batata frita.</p>
+          <p style="font-size:17px;font-weight:700;font-family:'Playfair Display',serif;color:#9a7a5a;">Consulte</p>
+        </div>
+      </div>
+
+      <div class="menu-card" data-cat="porcoes" data-name="frango empanado 500g">
+        <image-slot id="img-por-frango500" shape="rect" placeholder="📷 Foto do prato" src="../Imagens Comidas/porcao_frango.jpg"></image-slot>
+        <div class="card-body">
+          <span style="display:inline-block;background:#4a3000;color:#FFF8F0;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-bottom:10px;">Porção</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#2a1a0e;margin-bottom:5px;line-height:1.3;">Frango Empanado 500g</h3>
+          <p style="font-size:11.5px;color:#7a5c3e;line-height:1.6;margin-bottom:12px;">Frango empanado e temperado com especiarias da casa.</p>
+          <p style="font-size:17px;font-weight:700;font-family:'Playfair Display',serif;color:#9a7a5a;">Consulte</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── ADICIONAIS ── -->
+  <div data-section="adicionais" id="sec-adicionais" style="margin-top:56px;">
+    <div class="section-title-line" style="margin-bottom:28px;">
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(20px,4vw,28px);font-weight:700;color:#8B1A1A;white-space:nowrap;">☾ Adicionais</h2>
+    </div>
+    <div style="background:#FFFCF7; border:1px solid rgba(200,134,10,0.25); border-radius:14px; overflow:hidden;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid rgba(200,134,10,0.12);">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🧀</span><span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:#2a1a0e;">Queijo</span></div>
+        <span style="font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#C8860A;">R$ 5,00</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid rgba(200,134,10,0.12);">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🥒</span><span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:#2a1a0e;">Picles</span></div>
+        <span style="font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#C8860A;">R$ 2,00</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px;">
+        <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🧄</span><span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:#2a1a0e;">Pasta de Alho</span></div>
+        <span style="font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#C8860A;">R$ 2,00</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- FOOTER -->
+<footer style="background:#0e0604; padding:48px 24px; text-align:center; border-top:1px solid rgba(200,134,10,0.2);">
+  <div style="margin-bottom:12px;"><span style="color:#C8860A;font-size:32px;">☾</span></div>
+  <h3 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#FFF8F0;margin-bottom:4px; animation: glowPulse 4s ease infinite;">Shebab's Shawarma</h3>
+  <p style="color:rgba(255,248,240,0.45);font-size:12px;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:28px;">Shawarma • Churrasco Grego • Especiais</p>
+  <a href="https://instagram.com/shebabs.shawarma" target="_blank"
+     style="display:inline-flex;align-items:center;gap:8px;background:rgba(200,134,10,0.12);border:1px solid rgba(200,134,10,0.4);border-radius:999px;padding:11px 24px;text-decoration:none;color:#C8860A;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;">
+    📸 @shebabs.shawarma
+  </a>
+  <div style="margin-top:32px;padding-top:20px;border-top:1px solid rgba(255,248,240,0.07);">
+    <p style="color:rgba(255,248,240,0.25);font-size:11px;font-family:'Inter',sans-serif;">Preços sujeitos a alteração sem aviso prévio.</p>
+  </div>
+</footer>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { activeCategory: 'all', searchQuery: '' };
+
+  componentDidMount() {
+    this._initShader();
+    this._setupSearch();
+    this._setupCategoryBtns();
+    this._animateCards();
+  }
+
+  _initShader() {
+    const canvas = document.getElementById('shader-canvas');
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) {
+      canvas.parentElement.style.background = '#6B1212';
+      return;
+    }
+
+    const vert = `
+      attribute vec2 a_pos;
+      void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
+    `;
+
+    const frag = `
+      precision mediump float;
+      uniform float u_time;
+      uniform vec2  u_res;
+
+      // Hash + noise helpers
+      vec2 hash2(vec2 p) {
+        p = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)));
+        return fract(sin(p)*43758.5453);
+      }
+      float voronoi(vec2 p, float t) {
+        vec2 ip = floor(p);
+        vec2 fp = fract(p);
+        float d = 8.0;
+        for (int i=-1; i<=1; i++) {
+          for (int j=-1; j<=1; j++) {
+            vec2 g = vec2(float(i),float(j));
+            vec2 o = hash2(ip + g);
+            o = 0.5 + 0.5*sin(t*0.4 + 6.2831*o);
+            float dd = length(g + o - fp);
+            d = min(d, dd);
+          }
+        }
+        return d;
+      }
+      float fbm(vec2 p, float t) {
+        float v = 0.0, a = 0.5;
+        for (int i=0; i<4; i++) {
+          v += a * voronoi(p, t);
+          p  = p * 2.1 + vec2(1.3, 0.7);
+          a *= 0.5;
+        }
+        return v;
+      }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / u_res;
+        uv.y = 1.0 - uv.y;
+        vec2 p = uv * 3.5 + vec2(0.0, u_time * 0.06);
+
+        float n  = fbm(p, u_time);
+        float n2 = fbm(p + vec2(1.7, 2.3), u_time + 3.0);
+
+        // Base: deep crimson
+        vec3 base  = vec3(0.07, 0.01, 0.01);
+        // Ember glow: gold
+        vec3 ember = vec3(0.78, 0.52, 0.04);
+        // Hot core: bright orange-white
+        vec3 hot   = vec3(1.0, 0.82, 0.42);
+
+        float heat = smoothstep(0.2, 0.8, n * n2 * 2.2);
+        float core = smoothstep(0.55, 0.85, n * n2 * 2.2);
+
+        vec3 col = mix(base, ember, heat);
+        col      = mix(col,  hot,   core * 0.5);
+
+        // Vignette
+        float vg = 1.0 - smoothstep(0.3, 1.0, length(uv - 0.5) * 1.4);
+        col *= vg * 0.9 + 0.1;
+
+        // Subtle star sparkles
+        float sparkle = step(0.998, fract(sin(dot(floor(uv*180.0), vec2(127.1,311.7)))*43758.5));
+        col += sparkle * vec3(1.0, 0.9, 0.6) * 0.6;
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `;
+
+    function compile(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      return s;
+    }
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vert));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+    const aPos = gl.getAttribLocation(prog, 'a_pos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uTime = gl.getUniformLocation(prog, 'u_time');
+    const uRes  = gl.getUniformLocation(prog, 'u_res');
+
+    let start = null;
+    const render = (ts) => {
+      if (!start) start = ts;
+      const t = (ts - start) / 1000;
+
+      // Resize
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width  = w;
+        canvas.height = h;
+        gl.viewport(0, 0, w, h);
+      }
+
+      gl.uniform1f(uTime, t);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      requestAnimationFrame(render);
+    };
+    requestAnimationFrame(render);
+  }
+
+  _setupSearch() {
+    const input = document.getElementById('search-input');
+    if (!input) return;
+    input.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      this.setState({ searchQuery: q });
+      this._filterItems(this.state.activeCategory, q);
+    });
+  }
+
+  _setupCategoryBtns() {
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cat = btn.dataset.cat;
+        document.querySelectorAll('.category-btn').forEach(b => {
+          b.classList.remove('active');
+          b.style.background = 'transparent';
+          b.style.color = '#C8860A';
+          b.style.boxShadow = 'none';
+        });
+        btn.classList.add('active');
+        btn.style.background = '#8B1A1A';
+        btn.style.color = '#FFF8F0';
+        btn.style.boxShadow = '0 4px 16px rgba(139,26,26,0.4)';
+
+        this.setState({ activeCategory: cat });
+        this._filterItems(cat, this.state.searchQuery);
+
+        const secMap = {
+          shawarma:'sec-shawarma', churrasco:'sec-churrasco', baguete:'sec-baguete',
+          beirute:'sec-beirute', especiais:'sec-especiais', vegetariano:'sec-vegetariano',
+          doces:'sec-doces', porcoes:'sec-porcoes', adicionais:'sec-adicionais'
+        };
+        if (cat !== 'all' && secMap[cat]) {
+          const el = document.getElementById(secMap[cat]);
+          if (el) {
+            const y = el.getBoundingClientRect().top + window.scrollY - 120;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+          }
+        }
+      });
+    });
+  }
+
+  _filterItems(cat, query) {
+    const cards = document.querySelectorAll('.menu-card');
+    const sections = document.querySelectorAll('[data-section]');
+    let anyVisible = false;
+    cards.forEach(card => {
+      const catMatch  = cat === 'all' || (card.dataset.cat || '') === cat;
+      const queryMatch = !query || (card.dataset.name || '').includes(query);
+      const visible = catMatch && queryMatch;
+      card.style.display = visible ? '' : 'none';
+      if (visible) anyVisible = true;
+    });
+    sections.forEach(sec => {
+      const hasVisible = Array.from(sec.querySelectorAll('.menu-card')).some(c => c.style.display !== 'none');
+      sec.style.display = hasVisible ? '' : 'none';
+    });
+    const empty = document.getElementById('empty-state');
+    if (empty) empty.style.display = anyVisible ? 'none' : 'block';
+  }
+
+  _animateCards() {
+    const cards = document.querySelectorAll('.menu-card');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    cards.forEach((card, i) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      card.style.transition = 'opacity 0.55s ease, transform 0.55s ease, box-shadow 0.28s ease, border-color 0.28s ease';
+      card.style.transitionDelay = (i % 6) * 0.07 + 's';
+      observer.observe(card);
+    });
+
+    setTimeout(() => {
+      cards.forEach(card => {
+        if (card.style.opacity === '0') {
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }
+      });
+    }, 800);
+  }
+}
+
+</script>
+</body>
+</html>
